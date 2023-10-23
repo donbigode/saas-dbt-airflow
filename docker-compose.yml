@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: airflowdbadmin
+      POSTGRES_PASSWORD: ABF1o!213
+      POSTGRES_DB: database
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+
+  webserver:
+    image: apache/airflow:2.1.0-python3.8
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      - LOAD_EX=n
+      - EXECUTOR=Local
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflowdbadmin:ABF1o!213@postgres:5432/database
+
+  scheduler:
+    image: apache/airflow:2.1.0-python3.8
+    depends_on:
+      - postgres
+    environment:
+      - LOAD_EX=n
+      - EXECUTOR=Local
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflowdbadmin:ABF1o!213@postgres:5432/database
+
+  pyspark-notebook:
+    image: jupyter/pyspark-notebook:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./jupyter_notebook_config.py:/home/jovyan/.jupyter/jupyter_notebook_config.py
+
+  spark-master:
+    image: bitnami/spark:latest
+    environment:
+      - SPARK_MODE=master
+
+  spark-worker:
+    image: bitnami/spark:latest
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    deploy:
+      replicas: 3
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./www:/usr/share/nginx/html
+
+volumes:
+  pgdata:
