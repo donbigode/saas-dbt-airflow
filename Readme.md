@@ -41,3 +41,26 @@ Notes:
 Ensure you have the necessary configuration files (pg_hba.conf, postgresql.conf, jupyter_notebook_config.py, nginx.conf) in the same directory as the docker-compose.yml.
 The www directory contains the HTML file for the Nginx dashboard.
 You can save the above content in a README.md file in the root directory of your project. Adjust the [repository-url] and [repository-directory] placeholders with the appropriate values if you're hosting this on a platform like GitHub.
+
+
+
+Project Structure:
+saas-dbt-airflow/
+│
+├── docker-compose.yml               # The main Docker Compose file
+│
+├── nginx.conf                       # Nginx configuration file
+│
+├── jupyter_notebook_config.py       # Jupyter Notebook configuration file
+│
+├── pg_hba.conf                      # PostgreSQL client authentication configuration file (if needed)
+│
+├── postgresql.conf                  # PostgreSQL main configuration file (if needed)
+│
+├── www/                             # Directory containing static files for Nginx
+│   ├── index.html                   # Sample static file (you can add more files or subdirectories here)
+│
+└── bashs/                           # Directory containing shell scripts
+    ├── stop_and_remove_all.sh       # Script to stop and remove all containers
+    ├── stop_specific_container.sh   # Script to stop a specific container
+    └── restart_specific_container.sh # Script to restart a specific container

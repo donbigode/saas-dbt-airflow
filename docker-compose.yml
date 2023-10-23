@@ -1,38 +1,30 @@
 version: '3'
 
 services:
-  postgres:
-    image: postgres:latest
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: airflowdbadmin
-      POSTGRES_PASSWORD: ABF1o!213
-      POSTGRES_DB: database
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
-      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-
   webserver:
     image: apache/airflow:2.1.0-python3.8
-    depends_on:
-      - postgres
     ports:
       - "8080:8080"
     environment:
       - LOAD_EX=n
       - EXECUTOR=Local
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflowdbadmin:ABF1o!213@postgres:5432/database
+    command: webserver
 
   scheduler:
     image: apache/airflow:2.1.0-python3.8
-    depends_on:
-      - postgres
     environment:
       - LOAD_EX=n
       - EXECUTOR=Local
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflowdbadmin:ABF1o!213@postgres:5432/database
+    command: scheduler
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
 
   pyspark-notebook:
     image: jupyter/pyspark-notebook:latest
@@ -43,6 +35,8 @@ services:
 
   spark-master:
     image: bitnami/spark:latest
+    ports:
+      - "8081:8081"
     environment:
       - SPARK_MODE=master
 
@@ -59,8 +53,10 @@ services:
     ports:
       - "80:80"
     volumes:
-      -  /home/laptop-samsung/unix-server/codes/saas-dbt-airflow/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
       - ./www:/usr/share/nginx/html
 
-volumes:
-  pgdata:
+networks:
+  default:
+    external:
+      name: nginx-network
