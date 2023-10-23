@@ -63,4 +63,4 @@ services:
       - ./www:/usr/share/nginx/html
 
 volumes:
-  pgdata:
+  pgdata: 
