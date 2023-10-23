@@ -59,7 +59,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      -  /home/laptop-samsung/unix-server/codes/saas-dbt-airflow/nginx.conf:/etc/nginx/nginx.conf
       - ./www:/usr/share/nginx/html
 
 volumes:
